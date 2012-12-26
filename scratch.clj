@@ -1,21 +1,8 @@
 (ns user
-  (:import [javax.jmdns JmDNS JmmDNS$Factory ServiceListener ServiceTypeListener]))
+  (:require (cassiel.clojure-zeroconf [core :as c]))
+  (:import [javax.jmdns JmDNS ServiceListener]))
 
-(def jmmDNS
-  (JmmDNS$Factory/getInstance))
-
-(.getNames jmmDNS)
-
-(.getInterfaces jmmDNS)
-
-(vec (.getServiceInfos jmmDNS "_monome-osc._udp." nil))
-
-
-
-(.close jmmDNS)
-
-
-
+; --- Manual tests (vestigial).
 
 (def jmDNS (JmDNS/create))
 
@@ -35,6 +22,10 @@
 
 (.requestServiceInfo jmDNS "_monome-osc._udp.local." (-> @a (.getInfo) (.getName)))
 
+(.getServiceInfo jmDNS "_monome-osc._udp.local." (-> @a (.getInfo) (.getName)))
+
+@a
+
 (-> @a (.getInfo) (.getName))
 
 (-> @a (.getInfo) (.getPort))
@@ -50,33 +41,13 @@
 
 (.close jmDNS)
 
-
 (.printServices jmDNS)
 
+; --- Actual package tests.
 
-(.list jmDNS "_nfs._tcp.local.")
+(def a (c/listen "_monome-osc._udp.local."))
+(def a (c/listen "_ssh._tcp.local."))
 
-(.list jmDNS "_monome-osc._udp.local.")
+@(:state a)
 
-
-(.addServiceListener
- jmDNS
- "_nfs._tcp.local."
- (reify ServiceListener
-   (serviceAdded [this x]
-     (do (prn "serviceAdded" x)
-         (reset! a x)))
-   (serviceRemoved [this x] (prn "serviceRemoved" x))
-   (serviceResolved [this x]
-     (do (prn "serviceResolved" x)
-         (reset! a x)))))
-
-(.requestServiceInfo jmDNS "_nfs._tcp.local." (-> @a (.getInfo) (.getName)))
-
-
-
-
-jmDNS
-
-(.getHostName jmDNS)
-(str "interface" (.getInterface jmDNS))
+((:close a))
