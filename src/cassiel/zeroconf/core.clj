@@ -11,7 +11,7 @@ less antisocial (it won't block)."
   (.requestServiceInfo jmDNS service-name (.getName info)))
 
 (defn add-info
-  "Add information for a service to this state."
+  "Add information for a service to this state. The key is the server name."
   ^{:private true}
   [state info]
   (let [name (.getName info)
@@ -57,7 +57,8 @@ of the service map."
         state (atom {})]
     (when-not
         (nil? watch)
-      (add-watch state service-name watch))
+      (add-watch state nil
+                 (fn [_k _a old new] (watch old new))))
     (.addServiceListener
      jmDNS
      service-name

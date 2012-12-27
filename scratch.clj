@@ -58,8 +58,8 @@
 ((:close a))
 
 (def a (c/listen "_monome-osc._udp.local."
-                 :watch (fn [ref a old new]
-                          (prn "service" ref "new keys" (keys new)))))
+                 :watch (fn [old new]
+                          (prn "old keys" (keys old) "new keys" (keys new)))))
 
 (keys {:A 1})
 
