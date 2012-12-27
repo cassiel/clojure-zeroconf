@@ -22,4 +22,10 @@ Very quick start:
 ((:close a))
 ```
 
+## License
+
+Copyright © 2012 Nick Rothwell, nick@cassiel.eu
+
+Distributed under the Eclipse Public License, the same as Clojure.
+
 [docs]: https://github.com/downloads/cassiel/clojure-zeroconf/uberdoc.html
