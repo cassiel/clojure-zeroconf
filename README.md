@@ -28,4 +28,4 @@ Copyright © 2012 Nick Rothwell, nick@cassiel.eu
 
 Distributed under the Eclipse Public License, the same as Clojure.
 
-[docs]: https://github.com/downloads/cassiel/clojure-zeroconf/uberdoc.html
+[docs]: https://github.com/cassiel/clojure-zeroconf/blob/master/docs/uberdoc.html
