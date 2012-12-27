@@ -47,6 +47,9 @@
 
 ;; (require '(cassiel.zeroconf [core :as c]))
 
+(ns user
+  (:require (cassiel.zeroconf [core :as c])))
+
 (def a (c/listen "_monome-osc._udp.local."))
 (def a (c/listen "_ssh._tcp.local."))
 
