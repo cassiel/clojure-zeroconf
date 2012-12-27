@@ -45,9 +45,25 @@
 
 ; --- Actual package tests.
 
+(require '(cassiel.clojure-zeroconf [core :as c]))
+
 (def a (c/listen "_monome-osc._udp.local."))
 (def a (c/listen "_ssh._tcp.local."))
 
 @(:state a)
 
 ((:close a))
+
+(def a (c/listen "_monome-osc._udp.local."
+                 :watch (fn [ref a old new]
+                          (prn "service" ref "new keys" (keys new)))))
+
+(keys {:A 1})
+
+(pprint @(:state a))
+
+
+(doseq
+    [[a b] {:A 1 :B 2}]
+  (prn a " -> " b)
+  )

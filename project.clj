@@ -4,4 +4,5 @@
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
   :dependencies [[javax.jmdns/jmdns "3.4.1"]
-                 [org.clojure/clojure "1.4.0"]])
+                 [org.clojure/clojure "1.4.0"]]
+  :plugins [[lein-marginalia "0.7.1"]])
