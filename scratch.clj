@@ -1,5 +1,5 @@
 (ns user
-  (:require (cassiel.clojure-zeroconf [core :as c]))
+  (:require (cassiel.zeroconf [core :as c]))
   (:import [javax.jmdns JmDNS ServiceListener]))
 
 ; --- Manual tests (vestigial).
@@ -45,7 +45,7 @@
 
 ; --- Actual package tests.
 
-(require '(cassiel.clojure-zeroconf [core :as c]))
+;; (require '(cassiel.zeroconf [core :as c]))
 
 (def a (c/listen "_monome-osc._udp.local."))
 (def a (c/listen "_ssh._tcp.local."))

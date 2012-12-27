@@ -1,4 +1,4 @@
-(ns cassiel.clojure-zeroconf.core
+(ns cassiel.zeroconf.core
   (:import [javax.jmdns JmDNS ServiceListener]))
 
 (defn request-info
@@ -28,7 +28,7 @@
 ;; Returns a record with the state (an atom) and a close function
 ;; for closing down the listener:
 ;;
-;;     (require '(cassiel.clojure-zeroconf [core :as c]))
+;;     (require '(cassiel.zeroconf [core :as c]))
 ;;     (def listener (c/listen <service-name>))
 ;;     (do-something @(:state listener))
 ;;
