@@ -49,38 +49,54 @@ Closing:
 
     (zc/close listener)
 
-The `close` call takes a few seconds, and is synchronous so will block.
+The `close` call is asynchronous and returns immediately; the
+actual close is performed by an agent thread.
 
 To add a watcher, add a function as a keyword argument:
 
     (zc/listen <service-name> :watch <fn>)
 
 The watch function just takes two arguments: the old and new values
-of the service map."
+of the service map. On a call to `close`, any watcher is removed
+immediately."
 
   [service-name & {:keys [watch]}]
-  (let [jmDNS (JmDNS/create)
+  (let [async-agent (agent nil)
+        jmDNS (JmDNS/create)
         state (atom {})]
     (when-not
         (nil? watch)
       (add-watch state nil
                  (fn [_k _a old new] (watch old new))))
-    (.addServiceListener
-     jmDNS
-     service-name
-     (reify ServiceListener
-       (serviceAdded [this event]
-         (let [info (.getInfo event)]
-           (if (.hasData info)          ; Unlikely; perhaps never true.
-             (add-info state info)
-             (request-info jmDNS service-name info))))
 
-       (serviceRemoved [this event]
-         (remove-info state (.getInfo event)))
+    (send async-agent
+          (fn [_]
+            (.addServiceListener
+             jmDNS
+             service-name
+             (reify ServiceListener
+               (serviceAdded [this event]
+                 (let [info (.getInfo event)]
+                   (if (.hasData info)          ; Unlikely; perhaps never true.
+                     (add-info state info)
+                     (request-info jmDNS service-name info))))
 
-       (serviceResolved [this event]    ; Assume the info. is now complete.
-         (add-info state (.getInfo event)))))
+               (serviceRemoved [this event]
+                 (remove-info state (.getInfo event)))
+
+               (serviceResolved [this event]    ; Assume the info. is now complete.
+                 (add-info state (.getInfo event)))))
+
+            true))
 
     (reify LISTENER
       (examine [this] @state)
-      (close [this] (.close jmDNS)))))
+
+      (close
+        [this]
+        (remove-watch state nil)
+        (send async-agent
+              (fn [x]
+                (when x (.close jmDNS))
+                false))
+        nil))))
