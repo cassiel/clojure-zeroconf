@@ -13,13 +13,13 @@ Very quick start:
 
 (def a (zc/listen "_ssh._tcp.local."))
 
-(pprint @(:state a))
+(pprint (zc/examine a))
 
 {"Arnavutköy" {:server "Arnavutk-y.local.", :port 22},
  "Sultanahmet" {:server "Sultanahmet.local.", :port 22},
  "Topkapı" {:server "Topkap-3.local.", :port 22}}
 
-((:close a))
+(zc/close a)
 ```
 
 ## License

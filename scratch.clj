@@ -51,9 +51,9 @@
 (def a (zc/listen "_monome-osc._udp.local."))
 (def a (zc/listen "_ssh._tcp.local."))
 
-@(:state a)
+(zc/examine a)
 
-((:close a))
+(zc/close a)
 
 (def a (zc/listen "_monome-osc._udp.local."
                  :watch (fn [old new]
@@ -61,8 +61,7 @@
 
 (keys {:A 1})
 
-(pprint @(:state a))
-
+(pprint (zc/examine a))
 
 (doseq
     [[a b] {:A 1 :B 2}]

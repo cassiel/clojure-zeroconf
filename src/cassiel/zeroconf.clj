@@ -1,6 +1,11 @@
 (ns cassiel.zeroconf
   (:import [javax.jmdns JmDNS ServiceListener]))
 
+(defprotocol LISTENER
+  "Interface to zeroconf listener, with state and close function."
+  (examine [this] "Return the value inside the state atom.")
+  (close [this] "Close the listener."))
+
 (defn request-info
   "Issue a request to get the (rest of the) service info.
 We could just do a `(.getServiceInfo)` but this is slightly
@@ -27,21 +32,22 @@ less antisocial (it won't block)."
 
 (defn listen
   "Create a listener for a service name (including the `.local.` suffix).
-Returns a record with the state (an atom) and a `close` function
+Returns an object under protocol `LISTENER` with a function to
+examine the state and a `close` function
 for closing down the listener.
 
     (require '(cassiel [zeroconf :as zc]))
     (def listener (zc/listen <service-name>))
-    (do-something @(:state listener))
+    (do-something (zc/examine listener))
 
-The state atom contains a map from strings (the published server names)
+The state is a map from strings (the published server names)
 to maps containing `:server` and `:port`. Note that it can take a while
 for all server information to be generated (the request calls are
 asychronous).
 
 Closing:
 
-    ((:close listener))
+    (zc/close listener)
 
 The `close` call takes a few seconds, and is synchronous so will block.
 
@@ -75,5 +81,6 @@ of the service map."
        (serviceResolved [this event]    ; Assume the info. is now complete.
          (add-info state (.getInfo event)))))
 
-    {:state state
-     :close #(.close jmDNS)}))
+    (reify LISTENER
+      (examine [this] @state)
+      (close [this] (.close jmDNS)))))
