@@ -9,17 +9,17 @@ Very quick start:
 
 ```clojure
 (ns user
-  (:require (cassiel [zeroconf :as zc])))
+  (:require (cassiel.zeroconf [client :as cl])))
 
-(def a (zc/listen "_ssh._tcp.local."))
+(def a (cl/listen "_ssh._tcp.local."))
 
-(pprint (zc/examine a))
+(pprint (cl/examine a))
 
 {"Arnavutköy" {:server "Arnavutk-y.local.", :port 22},
  "Sultanahmet" {:server "Sultanahmet.local.", :port 22},
  "Topkapı" {:server "Topkap-3.local.", :port 22}}
 
-(zc/close a)
+(cl/close a)
 ```
 
 ## License

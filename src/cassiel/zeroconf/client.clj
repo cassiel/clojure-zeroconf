@@ -1,4 +1,4 @@
-(ns cassiel.zeroconf
+(ns cassiel.zeroconf.client
   (:import [javax.jmdns JmDNS ServiceListener]))
 
 (defprotocol LISTENER
@@ -36,9 +36,9 @@ Returns an object under protocol `LISTENER` with a function to
 examine the state and a `close` function
 for closing down the listener.
 
-    (require '(cassiel [zeroconf :as zc]))
-    (def listener (zc/listen <service-name>))
-    (do-something (zc/examine listener))
+    (require '(cassiel.zeroconf [client :as cl]))
+    (def listener (cl/listen <service-name>))
+    (do-something (cl/examine listener))
 
 The state is a map from strings (the published server names)
 to maps containing `:server` and `:port`. Note that it can take a while
@@ -47,14 +47,14 @@ asychronous).
 
 Closing:
 
-    (zc/close listener)
+    (cl/close listener)
 
 The `close` call is asynchronous and returns immediately; the
 actual close is performed by an agent thread.
 
 To add a watcher, add a function as a keyword argument:
 
-    (zc/listen <service-name> :watch <fn>)
+    (cl/listen <service-name> :watch <fn>)
 
 The watch function just takes two arguments: the old and new values
 of the service map. On a call to `close`, any watcher is removed
