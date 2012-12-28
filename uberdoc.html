@@ -3029,8 +3029,8 @@ net.brehaut.ClojureTools = (function (SH) {
   };
 })(SyntaxHighlighter);
 </script><title>eu.cassiel/clojure-zeroconf -- Marginalia</title></head><body><table><tr><td class="docs"><div class="header"><h1 class="project-name">eu.cassiel/clojure-zeroconf</h1><h2 class="project-version">1.0.0</h2><br /><p>Zeroconf client in Clojure</p>
-</div><div class="dependencies"><h3>dependencies</h3><table><tr><td class="dep-name">javax.jmdns/jmdns</td><td class="dotted"><hr /></td><td class="dep-version">3.4.1</td></tr><tr><td class="dep-name">org.clojure/clojure</td><td class="dotted"><hr /></td><td class="dep-version">1.4.0</td></tr></table></div></td><td class="codes" style="text-align: center; vertical-align: middle;color: #666;padding-right:20px"><br /><br /><br />(this space intentionally left almost blank)</td></tr><tr><td class="docs"><div class="toc"><a name="toc"><h3>namespaces</h3></a><ul><li><a href="#cassiel.zeroconf">cassiel.zeroconf</a></li></ul></div></td><td class="codes">&nbsp;</td></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#cassiel.zeroconf" name="cassiel.zeroconf"><h1 class="project-name">cassiel.zeroconf</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs">
-</td><td class="codes"><pre class="brush: clojure">(ns cassiel.zeroconf
+</div><div class="dependencies"><h3>dependencies</h3><table><tr><td class="dep-name">javax.jmdns/jmdns</td><td class="dotted"><hr /></td><td class="dep-version">3.4.1</td></tr><tr><td class="dep-name">org.clojure/clojure</td><td class="dotted"><hr /></td><td class="dep-version">1.4.0</td></tr></table></div></td><td class="codes" style="text-align: center; vertical-align: middle;color: #666;padding-right:20px"><br /><br /><br />(this space intentionally left almost blank)</td></tr><tr><td class="docs"><div class="toc"><a name="toc"><h3>namespaces</h3></a><ul><li><a href="#cassiel.zeroconf.client">cassiel.zeroconf.client</a></li></ul></div></td><td class="codes">&nbsp;</td></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#cassiel.zeroconf.client" name="cassiel.zeroconf.client"><h1 class="project-name">cassiel.zeroconf.client</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs">
+</td><td class="codes"><pre class="brush: clojure">(ns cassiel.zeroconf.client
   (:import [javax.jmdns JmDNS ServiceListener]))</pre></td></tr><tr><td class="docs"><p>Interface to zeroconf listener, with state and close function.</p>
 </td><td class="codes"><pre class="brush: clojure">(defprotocol LISTENER
   (examine [this] &quot;Return the value inside the state atom.&quot;)
@@ -3056,9 +3056,9 @@ Returns an object under protocol <code>LISTENER</code> with a function to
 examine the state and a <code>close</code> function
 for closing down the listener.</p>
 
-<pre><code>(require '(cassiel [zeroconf :as zc]))
-(def listener (zc/listen &lt;service-name&gt;))
-(do-something (zc/examine listener))
+<pre><code>(require '(cassiel.zeroconf [client :as cl]))
+(def listener (cl/listen &lt;service-name&gt;))
+(do-something (cl/examine listener))
 </code></pre>
 
 <p>The state is a map from strings (the published server names)
@@ -3068,40 +3068,53 @@ asychronous).</p>
 
 <p>Closing:</p>
 
-<pre><code>(zc/close listener)
+<pre><code>(cl/close listener)
 </code></pre>
 
-<p>The <code>close</code> call takes a few seconds, and is synchronous so will block.</p>
+<p>The <code>close</code> call is asynchronous and returns immediately; the
+actual close is performed by an agent thread.</p>
 
 <p>To add a watcher, add a function as a keyword argument:</p>
 
-<pre><code>(zc/listen &lt;service-name&gt; :watch &lt;fn&gt;)
+<pre><code>(cl/listen &lt;service-name&gt; :watch &lt;fn&gt;)
 </code></pre>
 
 <p>The watch function just takes two arguments: the old and new values
-of the service map.</p>
+of the service map. On a call to <code>close</code>, any watcher is removed
+immediately.</p>
 </td><td class="codes"><pre class="brush: clojure">(defn listen
   [service-name &amp; {:keys [watch]}]
-  (let [jmDNS (JmDNS/create)
+  (let [async-agent (agent nil)
+        jmDNS (JmDNS/create)
         state (atom {})]
     (when-not
         (nil? watch)
       (add-watch state nil
                  (fn [_k _a old new] (watch old new))))
-    (.addServiceListener
-     jmDNS
-     service-name
-     (reify ServiceListener
-       (serviceAdded [this event]
-         (let [info (.getInfo event)]
-           (if (.hasData info)          ; Unlikely; perhaps never true.
-             (add-info state info)
-             (request-info jmDNS service-name info))))
-       (serviceRemoved [this event]
-         (remove-info state (.getInfo event)))
-       (serviceResolved [this event]    ; Assume the info. is now complete.
-         (add-info state (.getInfo event)))))
+    (send async-agent
+          (fn [_]
+            (.addServiceListener
+             jmDNS
+             service-name
+             (reify ServiceListener
+               (serviceAdded [this event]
+                 (let [info (.getInfo event)]
+                   (if (.hasData info)          ; Unlikely; perhaps never true.
+                     (add-info state info)
+                     (request-info jmDNS service-name info))))
+               (serviceRemoved [this event]
+                 (remove-info state (.getInfo event)))
+               (serviceResolved [this event]    ; Assume the info. is now complete.
+                 (add-info state (.getInfo event)))))
+            true))
     (reify LISTENER
       (examine [this] @state)
-      (close [this] (.close jmDNS)))))</pre></td></tr><tr><td class="spacer docs">&nbsp;</td><td class="codes" /></tr></table><div class="footer">Generated by <a href="https://github.com/fogus/marginalia">Marginalia</a>.&nbsp;&nbsp;Syntax highlighting provided by Alex Gorbatchev's <a href="http://alexgorbatchev.com/SyntaxHighlighter/">SyntaxHighlighter</a></div><script type="text/javascript">SyntaxHighlighter.defaults['gutter'] = false;
+      (close
+        [this]
+        (remove-watch state nil)
+        (send async-agent
+              (fn [x]
+                (when x (.close jmDNS))
+                false))
+        nil))))</pre></td></tr><tr><td class="spacer docs">&nbsp;</td><td class="codes" /></tr></table><div class="footer">Generated by <a href="https://github.com/fogus/marginalia">Marginalia</a>.&nbsp;&nbsp;Syntax highlighting provided by Alex Gorbatchev's <a href="http://alexgorbatchev.com/SyntaxHighlighter/">SyntaxHighlighter</a></div><script type="text/javascript">SyntaxHighlighter.defaults['gutter'] = false;
        SyntaxHighlighter.all()</script></body></html>
