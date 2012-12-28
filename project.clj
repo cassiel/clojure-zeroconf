@@ -1,4 +1,4 @@
-(defproject eu.cassiel/clojure-zeroconf "1.0.0"
+(defproject org.clojars.cassiel/clojure-zeroconf "1.0.0"
   :description "Zeroconf client in Clojure"
   :url "https://github.com/cassiel/clojure-zeroconf"
   :license {:name "Eclipse Public License"
