@@ -3029,9 +3029,12 @@ net.brehaut.ClojureTools = (function (SH) {
   };
 })(SyntaxHighlighter);
 </script><title>eu.cassiel/clojure-zeroconf -- Marginalia</title></head><body><table><tr><td class="docs"><div class="header"><h1 class="project-name">eu.cassiel/clojure-zeroconf</h1><h2 class="project-version">1.0.0</h2><br /><p>Zeroconf client in Clojure</p>
-</div><div class="dependencies"><h3>dependencies</h3><table><tr><td class="dep-name">javax.jmdns/jmdns</td><td class="dotted"><hr /></td><td class="dep-version">3.4.1</td></tr><tr><td class="dep-name">org.clojure/clojure</td><td class="dotted"><hr /></td><td class="dep-version">1.4.0</td></tr></table></div></td><td class="codes" style="text-align: center; vertical-align: middle;color: #666;padding-right:20px"><br /><br /><br />(this space intentionally left almost blank)</td></tr><tr><td class="docs"><div class="toc"><a name="toc"><h3>namespaces</h3></a><ul><li><a href="#cassiel.zeroconf.core">cassiel.zeroconf.core</a></li></ul></div></td><td class="codes">&nbsp;</td></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#cassiel.zeroconf.core" name="cassiel.zeroconf.core"><h1 class="project-name">cassiel.zeroconf.core</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs">
-</td><td class="codes"><pre class="brush: clojure">(ns cassiel.zeroconf.core
-  (:import [javax.jmdns JmDNS ServiceListener]))</pre></td></tr><tr><td class="docs"><p>Issue a request to get the (rest of the) service info.
+</div><div class="dependencies"><h3>dependencies</h3><table><tr><td class="dep-name">javax.jmdns/jmdns</td><td class="dotted"><hr /></td><td class="dep-version">3.4.1</td></tr><tr><td class="dep-name">org.clojure/clojure</td><td class="dotted"><hr /></td><td class="dep-version">1.4.0</td></tr></table></div></td><td class="codes" style="text-align: center; vertical-align: middle;color: #666;padding-right:20px"><br /><br /><br />(this space intentionally left almost blank)</td></tr><tr><td class="docs"><div class="toc"><a name="toc"><h3>namespaces</h3></a><ul><li><a href="#cassiel.zeroconf">cassiel.zeroconf</a></li></ul></div></td><td class="codes">&nbsp;</td></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#cassiel.zeroconf" name="cassiel.zeroconf"><h1 class="project-name">cassiel.zeroconf</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs">
+</td><td class="codes"><pre class="brush: clojure">(ns cassiel.zeroconf
+  (:import [javax.jmdns JmDNS ServiceListener]))</pre></td></tr><tr><td class="docs"><p>Interface to zeroconf listener, with state and close function.</p>
+</td><td class="codes"><pre class="brush: clojure">(defprotocol LISTENER
+  (examine [this] &quot;Return the value inside the state atom.&quot;)
+  (close [this] &quot;Close the listener.&quot;))</pre></td></tr><tr><td class="docs"><p>Issue a request to get the (rest of the) service info.
 We could just do a <code>(.getServiceInfo)</code> but this is slightly
 less antisocial (it won't block).</p>
 </td><td class="codes"><pre class="brush: clojure">(defn request-info
@@ -3049,29 +3052,30 @@ less antisocial (it won't block).</p>
   ^{:private true}
   [state info]
   (swap! state dissoc (.getName info)))</pre></td></tr><tr><td class="docs"><p>Create a listener for a service name (including the <code>.local.</code> suffix).
-Returns a record with the state (an atom) and a <code>close</code> function
+Returns an object under protocol <code>LISTENER</code> with a function to
+examine the state and a <code>close</code> function
 for closing down the listener.</p>
 
-<pre><code>(require '(cassiel.zeroconf [core :as c]))
-(def listener (c/listen &lt;service-name&gt;))
-(do-something @(:state listener))
+<pre><code>(require '(cassiel [zeroconf :as zc]))
+(def listener (zc/listen &lt;service-name&gt;))
+(do-something (zc/examine listener))
 </code></pre>
 
-<p>The state atom contains a map from strings (the published server names)
+<p>The state is a map from strings (the published server names)
 to maps containing <code>:server</code> and <code>:port</code>. Note that it can take a while
 for all server information to be generated (the request calls are
 asychronous).</p>
 
 <p>Closing:</p>
 
-<pre><code>((:close listener))
+<pre><code>(zc/close listener)
 </code></pre>
 
 <p>The <code>close</code> call takes a few seconds, and is synchronous so will block.</p>
 
 <p>To add a watcher, add a function as a keyword argument:</p>
 
-<pre><code>(c/listen &lt;service-name&gt; :watch &lt;fn&gt;)
+<pre><code>(zc/listen &lt;service-name&gt; :watch &lt;fn&gt;)
 </code></pre>
 
 <p>The watch function just takes two arguments: the old and new values
@@ -3097,6 +3101,7 @@ of the service map.</p>
          (remove-info state (.getInfo event)))
        (serviceResolved [this event]    ; Assume the info. is now complete.
          (add-info state (.getInfo event)))))
-    {:state state
-     :close #(.close jmDNS)}))</pre></td></tr><tr><td class="spacer docs">&nbsp;</td><td class="codes" /></tr></table><div class="footer">Generated by <a href="https://github.com/fogus/marginalia">Marginalia</a>.&nbsp;&nbsp;Syntax highlighting provided by Alex Gorbatchev's <a href="http://alexgorbatchev.com/SyntaxHighlighter/">SyntaxHighlighter</a></div><script type="text/javascript">SyntaxHighlighter.defaults['gutter'] = false;
+    (reify LISTENER
+      (examine [this] @state)
+      (close [this] (.close jmDNS)))))</pre></td></tr><tr><td class="spacer docs">&nbsp;</td><td class="codes" /></tr></table><div class="footer">Generated by <a href="https://github.com/fogus/marginalia">Marginalia</a>.&nbsp;&nbsp;Syntax highlighting provided by Alex Gorbatchev's <a href="http://alexgorbatchev.com/SyntaxHighlighter/">SyntaxHighlighter</a></div><script type="text/javascript">SyntaxHighlighter.defaults['gutter'] = false;
        SyntaxHighlighter.all()</script></body></html>
