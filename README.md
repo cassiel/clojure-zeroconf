@@ -5,6 +5,8 @@ jmDNS-based zeroconf in Clojure.
 
 For documentation and usage see the [Marginalia documentation][docs].
 
+Artifact information [here][clojars].
+
 Very quick start:
 
 ```clojure
@@ -29,3 +31,4 @@ Copyright © 2012 Nick Rothwell, nick@cassiel.eu
 Distributed under the Eclipse Public License, the same as Clojure.
 
 [docs]: http://cassiel.github.com/clojure-zeroconf/uberdoc.html
+[clojars]: https://clojars.org/eu.cassiel/clojure-zeroconf
