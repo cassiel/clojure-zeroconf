@@ -1,5 +1,5 @@
 (ns user
-  (:require (cassiel.zeroconf [core :as c]))
+  (:require (cassiel [zeroconf :as zc]))
   (:import [javax.jmdns JmDNS ServiceListener]))
 
 ; --- Manual tests (vestigial).
@@ -45,19 +45,17 @@
 
 ; --- Actual package tests.
 
-;; (require '(cassiel.zeroconf [core :as c]))
-
 (ns user
-  (:require (cassiel.zeroconf [core :as c])))
+  (:require (cassiel [zeroconf :as zc])))
 
-(def a (c/listen "_monome-osc._udp.local."))
-(def a (c/listen "_ssh._tcp.local."))
+(def a (zc/listen "_monome-osc._udp.local."))
+(def a (zc/listen "_ssh._tcp.local."))
 
 @(:state a)
 
 ((:close a))
 
-(def a (c/listen "_monome-osc._udp.local."
+(def a (zc/listen "_monome-osc._udp.local."
                  :watch (fn [old new]
                           (prn "old keys" (keys old) "new keys" (keys new)))))
 

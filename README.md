@@ -9,9 +9,9 @@ Very quick start:
 
 ```clojure
 (ns user
-  (:require (cassiel.zeroconf [core :as c])))
+  (:require (cassiel [zeroconf :as zc])))
 
-(def a (c/listen "_ssh._tcp.local."))
+(def a (zc/listen "_ssh._tcp.local."))
 
 (pprint @(:state a))
 

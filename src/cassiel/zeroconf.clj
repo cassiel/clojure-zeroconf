@@ -1,4 +1,4 @@
-(ns cassiel.zeroconf.core
+(ns cassiel.zeroconf
   (:import [javax.jmdns JmDNS ServiceListener]))
 
 (defn request-info

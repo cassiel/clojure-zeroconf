@@ -1,6 +1,6 @@
-(ns cassiel.zeroconf.core-test
+(ns cassiel.zeroconf-test
   (:use clojure.test
-        cassiel.zeroconf.core))
+        cassiel.zeroconf))
 
 (deftest a-test
   (testing "FIXME, I fail."
