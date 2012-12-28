@@ -30,8 +30,8 @@ less antisocial (it won't block)."
 Returns a record with the state (an atom) and a `close` function
 for closing down the listener.
 
-    (require '(cassiel.zeroconf [core :as c]))
-    (def listener (c/listen <service-name>))
+    (require '(cassiel [zeroconf :as zc]))
+    (def listener (zc/listen <service-name>))
     (do-something @(:state listener))
 
 The state atom contains a map from strings (the published server names)
@@ -47,7 +47,7 @@ The `close` call takes a few seconds, and is synchronous so will block.
 
 To add a watcher, add a function as a keyword argument:
 
-    (c/listen <service-name> :watch <fn>)
+    (zc/listen <service-name> :watch <fn>)
 
 The watch function just takes two arguments: the old and new values
 of the service map."
