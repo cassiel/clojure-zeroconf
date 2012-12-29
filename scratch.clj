@@ -46,7 +46,7 @@
 ; --- Actual package tests.
 
 (ns user
-  (:require (cassiel [zeroconf :as cl])))
+  (:require (cassiel.zeroconf [client :as cl])))
 
 (def a (cl/listen "_monome-osc._udp.local."))
 (def a (cl/listen "_ssh._tcp.local."))
