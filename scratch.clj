@@ -1,8 +1,9 @@
 (ns user
-  (:require (cassiel.zeroconf [client :as cl]))
-  (:import [javax.jmdns JmDNS ServiceListener]))
+  (:require (cassiel.zeroconf [client :as cl]
+                              [server :as s]))
+  (:import [javax.jmdns JmDNS ServiceListener ServiceInfo]))
 
-; --- Manual tests (vestigial).
+;; --- Manual tests (vestigial).
 
 (def jmDNS (JmDNS/create))
 
@@ -43,7 +44,7 @@
 
 (.printServices jmDNS)
 
-; --- Actual package tests.
+;; --- Actual package tests.
 
 (ns user
   (:require (cassiel.zeroconf [client :as cl])))
@@ -63,7 +64,24 @@
 
 (pprint (cl/examine a))
 
-(doseq
-    [[a b] {:A 1 :B 2}]
-  (prn a " -> " b)
-  )
+;; --- Server tests: native.
+
+(def jmDNS (JmDNS/create))
+
+(def info (ServiceInfo/create "_cubewar._udp.local." "Test Cubewar" 8765 "A test Cubewar server"))
+
+(.registerService jmDNS info)
+
+(.unregisterService jmDNS info)
+
+;; --- Test interface.
+
+(def xxx
+  (s/server :type "_cubewar._udp.local."
+            :name "Test Cubewar"
+            :port 8765
+            :text "A test Cubewar server"))
+
+(s/open xxx)
+
+(s/close xxx)
