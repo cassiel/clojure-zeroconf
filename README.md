@@ -45,7 +45,7 @@ Server:
 
 Added server (register/unregister) component. Bumped Clojure dependency to `1.5.0`.
 
-### 1.0.0
+### 1.0.0, 2012-12-28
 
 Initial client release.
 
