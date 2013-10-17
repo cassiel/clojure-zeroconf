@@ -21,8 +21,9 @@ less antisocial (it won't block)."
   [state info]
   (let [name (.getName info)
         server (.getServer info)
-        port (.getPort info)]
-    (swap! state assoc name {:server server :port port})))
+        port (.getPort info)
+        urls (seq (.getURLs info))]
+    (swap! state assoc name {:server server :port port :urls urls})))
 
 (defn remove-info
   "Remove information for a service from this state."
