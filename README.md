@@ -41,6 +41,10 @@ Server:
 
 ## Releases
 
+### 1.2.0, 2013-10-17
+
+Merge [from Adam Clements](https://github.com/cassiel/clojure-zeroconf/pull/1). Clojure dependency `1.5.1`.
+
 ### 1.1.0, 2013-03-08
 
 Added server (register/unregister) component. Bumped Clojure dependency to `1.5.0`.
